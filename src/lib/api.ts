@@ -27,7 +27,7 @@ export function registerUnauthorizedHandler(cb: () => void) {
   _onUnauthorized = cb;
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+async function request<T>(path: string, init: RequestInit = {}, isAuthRoute = false): Promise<T> {
   if (!BASE) {
     throw new ApiError(
       0,
@@ -42,15 +42,22 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(`${BASE}${path}`, { ...init, headers });
   if (res.status === 204) return undefined as T;
 
-  // Auto-logout on 401
+  // Parse body first so we can use it in error messages
+  const text = await res.text();
+  const data = text ? (() => { try { return JSON.parse(text); } catch { return null; } })() : null;
+
+  // Auto-logout on 401 — but NOT during login/signup (wrong password ≠ expired session)
   if (res.status === 401) {
-    setToken(null);
-    _onUnauthorized?.();
-    throw new ApiError(401, "Session expired. Please log in again.");
+    if (!isAuthRoute) {
+      setToken(null);
+      _onUnauthorized?.();
+      throw new ApiError(401, "Session expired. Please log in again.");
+    }
+    // On auth routes, show the actual backend error
+    const detail = data?.detail ?? "Invalid email or password.";
+    throw new ApiError(401, typeof detail === "string" ? detail : "Invalid email or password.");
   }
 
-  const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
   if (!res.ok) {
     const msg =
       (data && (data.detail || data.message)) || `HTTP ${res.status}`;
@@ -134,12 +141,12 @@ export const api = {
     request<{ access_token: string }>("/auth/signup", {
       method: "POST",
       body: JSON.stringify(body),
-    }),
+    }, true),
   login: (body: { email: string; password: string }) =>
     request<{ access_token: string }>("/auth/login", {
       method: "POST",
       body: JSON.stringify(body),
-    }),
+    }, true),
   me: () => request<ApiUser>("/auth/me"),
   updateMe: (body: { units?: string }) =>
     request<ApiUser>("/auth/me", {
