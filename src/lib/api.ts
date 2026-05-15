@@ -1,7 +1,7 @@
-// Lightweight, typed REST client for the FastAPI backend (backend-starter/).
-// Configure with VITE_API_BASE_URL. Auth header is read from localStorage.
-
-const BASE = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
+// BASE: in local dev, set VITE_API_BASE_URL=http://localhost:8000 in .env
+// In Cloudflare Pages production, leave VITE_API_BASE_URL unset — requests go to
+// /api/* which the Cloudflare Worker (src/server.ts) proxies to Render server-side.
+const BASE = (import.meta.env.VITE_API_BASE_URL ?? "/api").replace(/\/$/, "");
 const TOKEN_KEY = "ironlog.jwt";
 
 export const isApiConfigured = () => BASE.length > 0;

@@ -3,6 +3,10 @@ import "./lib/error-capture";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 
+// The FastAPI backend on Render. Requests to /api/* are proxied here
+// server-side — the browser never makes a cross-origin request, eliminating CORS.
+const BACKEND_ORIGIN = "https://ironlog-api-i7zi.onrender.com";
+
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
 };
@@ -68,6 +72,34 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    const url = new URL(request.url);
+
+    // ── API reverse proxy ──────────────────────────────────────────────────
+    // Strip /api prefix and forward to the FastAPI backend.
+    // This runs server-side (Cloudflare Worker → Render) so CORS never applies.
+    if (url.pathname.startsWith("/api/")) {
+      const backendPath = url.pathname.slice(4); // "/api/auth/login" → "/auth/login"
+      const backendUrl = `${BACKEND_ORIGIN}${backendPath}${url.search}`;
+
+      const proxyHeaders = new Headers(request.headers);
+      // Remove the browser Host header; let fetch set it to the backend host
+      proxyHeaders.delete("host");
+
+      try {
+        return await fetch(backendUrl, {
+          method: request.method,
+          headers: proxyHeaders,
+          body: ["GET", "HEAD"].includes(request.method) ? null : request.body,
+        });
+      } catch {
+        return new Response(JSON.stringify({ detail: "Backend unreachable" }), {
+          status: 502,
+          headers: { "content-type": "application/json" },
+        });
+      }
+    }
+    // ── End API proxy ──────────────────────────────────────────────────────
+
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
