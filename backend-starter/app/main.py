@@ -36,7 +36,7 @@ app.include_router(analytics.router)
 
 @app.get("/health", tags=["meta"])
 def health():
-    return {"status": "ok", "env": settings.ENV}
+    return {"status": "ok", "env": settings.ENV, "version": "v3"}
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
