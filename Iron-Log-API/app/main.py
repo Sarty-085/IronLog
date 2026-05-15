@@ -11,6 +11,7 @@ _is_prod = settings.ENV == "production"
 app = FastAPI(
     title="IronLog API",
     version="2.4.0",
+    debug=True,
     # Disable interactive docs in production to avoid exposing the API surface
     docs_url=None if _is_prod else "/docs",
     redoc_url=None if _is_prod else "/redoc",
