@@ -18,6 +18,9 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()],
+    # Also allow all Cloudflare Workers/Pages origins (*.workers.dev, *.pages.dev)
+    # so the Cloudflare frontend works regardless of how CORS_ORIGINS is configured.
+    allow_origin_regex=r"https://.+\.workers\.dev|https://.+\.pages\.dev",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
