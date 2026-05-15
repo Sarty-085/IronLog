@@ -1,7 +1,9 @@
-// BASE: in local dev, set VITE_API_BASE_URL=http://localhost:8000 in .env
-// In Cloudflare Pages production, leave VITE_API_BASE_URL unset — requests go to
-// /api/* which the Cloudflare Worker (src/server.ts) proxies to Render server-side.
-const BASE = (import.meta.env.VITE_API_BASE_URL ?? "/api").replace(/\/$/, "");
+// In production (Cloudflare Pages), ALL requests go through the /api/* proxy
+// defined in src/server.ts — the Worker forwards them to Render server-side.
+// In local dev, set VITE_API_BASE_URL=http://localhost:8000 in your .env file.
+const BASE = import.meta.env.PROD
+  ? "/api"
+  : (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000").replace(/\/$/, "");
 const TOKEN_KEY = "ironlog.jwt";
 
 export const isApiConfigured = () => BASE.length > 0;
