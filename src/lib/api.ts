@@ -155,6 +155,11 @@ export const api = {
       method: "PATCH",
       body: JSON.stringify(body),
     }),
+  onboarding: (body: any) =>
+    request<ApiUser>("/profile/onboarding", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
 
   // exercises
   listExercises: () => request<ApiExercise[]>("/exercises"),

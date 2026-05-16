@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { useAuth } from "@/store/auth";
+import { api } from "@/lib/api";
 
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
@@ -29,23 +30,14 @@ function Onboarding() {
     setErr(null);
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/profile/onboarding", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          gender: formData.gender,
-          birth_date: formData.birth_date ? new Date(formData.birth_date).toISOString() : null,
-          height: formData.height ? parseFloat(formData.height) : null,
-          experience_level: formData.experience_level,
-          weight: formData.weight ? parseFloat(formData.weight) : null,
-          body_fat_pct: formData.body_fat_pct ? parseFloat(formData.body_fat_pct) : null,
-        }),
+      const data = await api.onboarding({
+        gender: formData.gender,
+        birth_date: formData.birth_date ? new Date(formData.birth_date).toISOString() : null,
+        height: formData.height ? parseFloat(formData.height) : null,
+        experience_level: formData.experience_level,
+        weight: formData.weight ? parseFloat(formData.weight) : null,
+        body_fat_pct: formData.body_fat_pct ? parseFloat(formData.body_fat_pct) : null,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Failed to save onboarding data");
       setAuth(token!, data); // Update user state with onboarding_completed = true
       nav({ to: "/" });
     } catch (ex) {
