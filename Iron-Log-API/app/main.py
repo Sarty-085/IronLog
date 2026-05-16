@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import traceback
 
 from .config import settings
-from .routers import auth, exercises, workouts, metrics, records, analytics
+from .routers import auth, profile, exercises, workouts, metrics, records, analytics
 
 _is_prod = settings.ENV == "production"
 
@@ -21,15 +21,13 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()],
-    # Also allow all Cloudflare Workers/Pages origins (*.workers.dev, *.pages.dev)
-    # so the Cloudflare frontend works regardless of how CORS_ORIGINS is configured.
-    allow_origin_regex=r"https://.+\.workers\.dev|https://.+\.pages\.dev",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 app.include_router(auth.router)
+app.include_router(profile.router)
 app.include_router(exercises.router)
 app.include_router(workouts.router)
 app.include_router(metrics.router)
@@ -39,7 +37,7 @@ app.include_router(analytics.router)
 
 @app.get("/health", tags=["meta"])
 def health():
-    return {"status": "ok", "env": settings.ENV, "version": "v3-ironlog"}
+    return {"status": "ok", "env": settings.ENV, "version": "v3"}
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):

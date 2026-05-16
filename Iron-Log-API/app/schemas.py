@@ -23,10 +23,48 @@ class UserOut(BaseModel):
     id: str
     email: EmailStr
     name: str
+    username: str | None = None
+    avatar_url: str | None = None
+    banner_url: str | None = None
+    bio: str | None = None
+    fitness_goal: str | None = None
+    is_public: bool
+    gender: str | None = None
+    birth_date: datetime | None = None
+    height: float | None = None
+    experience_level: str | None = None
+    onboarding_completed: bool
     units: str
 
     class Config:
         from_attributes = True
+
+class ForgotPasswordIn(BaseModel):
+    email: EmailStr
+
+class ResetPasswordIn(BaseModel):
+    token: str
+    new_password: str = Field(min_length=6, max_length=128)
+
+class ProfileUpdate(BaseModel):
+    username: str | None = None
+    name: str | None = None
+    bio: str | None = None
+    fitness_goal: str | None = None
+    is_public: bool | None = None
+    units: str | None = None
+
+class OnboardingData(BaseModel):
+    gender: str | None = None
+    birth_date: datetime | None = None
+    height: float | None = None
+    experience_level: str | None = None
+    weight: float | None = None
+    body_fat_pct: float | None = None
+
+class UploadUrlOut(BaseModel):
+    upload_url: str
+    public_url: str
 
 
 # Exercises

@@ -16,6 +16,17 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(255))
     name: Mapped[str] = mapped_column(String(120))
+    username: Mapped[str | None] = mapped_column(String(50), unique=True, index=True)
+    avatar_url: Mapped[str | None] = mapped_column(String(255))
+    banner_url: Mapped[str | None] = mapped_column(String(255))
+    bio: Mapped[str | None] = mapped_column(Text)
+    fitness_goal: Mapped[str | None] = mapped_column(String(100))
+    is_public: Mapped[bool] = mapped_column(Boolean, default=False)
+    gender: Mapped[str | None] = mapped_column(String(20))
+    birth_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    height: Mapped[float | None] = mapped_column(Float)
+    experience_level: Mapped[str | None] = mapped_column(String(50))
+    onboarding_completed: Mapped[bool] = mapped_column(Boolean, default=False)
     units: Mapped[str] = mapped_column(String(8), default="lbs")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
@@ -66,6 +77,7 @@ class BodyMetric(Base):
     measured_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     weight: Mapped[float | None] = mapped_column(Float)
     body_fat_pct: Mapped[float | None] = mapped_column(Float)
+    lean_mass: Mapped[float | None] = mapped_column(Float)
     note: Mapped[str | None] = mapped_column(Text)
 
 
@@ -77,3 +89,12 @@ class PersonalRecord(Base):
     one_rm: Mapped[float] = mapped_column(Float)
     max_volume: Mapped[float] = mapped_column(Float)
     achieved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    token_hash: Mapped[str] = mapped_column(String(255))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

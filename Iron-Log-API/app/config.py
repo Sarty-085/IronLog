@@ -11,5 +11,9 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = "http://localhost:5173"
     ENV: str = "development"  # set to "production" in Railway to disable Swagger
 
+    # Resend
+    RESEND_API_KEY: str = ""
+    EMAIL_FROM: str = "IronLog <noreply@ironlog.app>"
+
 
 settings = Settings()
