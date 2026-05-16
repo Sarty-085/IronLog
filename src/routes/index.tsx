@@ -36,6 +36,10 @@ function Dashboard() {
       nav({ to: "/login" });
       return;
     }
+    if (!user.onboarding_completed) {
+      nav({ to: "/onboarding" });
+      return;
+    }
     void loadAll();
   }, [hydrated, user, loadAll, nav]);
 

@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import traceback
 
 from .config import settings
-from .routers import auth, exercises, workouts, metrics, records, analytics
+from .routers import auth, profile, exercises, workouts, metrics, records, analytics
 
 _is_prod = settings.ENV == "production"
 
@@ -27,6 +27,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(profile.router)
 app.include_router(exercises.router)
 app.include_router(workouts.router)
 app.include_router(metrics.router)

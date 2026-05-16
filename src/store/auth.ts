@@ -18,6 +18,7 @@ type AuthState = {
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  setAuth: (token: string, user: ApiUser) => void;
 };
 
 function describeError(e: unknown): string {
@@ -83,6 +84,11 @@ export const useAuth = create<AuthState>((set) => {
     logout: () => {
       setToken(null);
       set({ user: null, token: null });
+    },
+
+    setAuth: (token: string, user: ApiUser) => {
+      setToken(token);
+      set({ user, token, hydrated: true });
     },
   };
 

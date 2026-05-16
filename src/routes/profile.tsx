@@ -65,7 +65,6 @@ function Profile() {
 
   async function handleSetUnits(u: "lbs" | "kg") {
     setUnits(u);
-    // Persist to backend — best-effort, no UI error shown
     try {
       await api.updateMe({ units: u });
       void queryClient.invalidateQueries({ queryKey: ["analytics"] });
